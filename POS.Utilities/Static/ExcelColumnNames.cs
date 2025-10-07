@@ -136,5 +136,21 @@
             return columnsProperties;
         }
         #endregion
+
+        #region GetColumnsUsers
+        public static List<(string ColumnName, string PropertyName)> GetColumnsUsers()
+        {
+            var columnsProperties = new List<(string ColumnName, string PropertyName)>
+            {
+                ("NOMBRE", "UserName"),
+                ("EMAIL", "Email"),
+                ("TIPO DE AUTH", "AuthType"),
+                ("FECHA DE CREACIÓN", "AuditCreateDate"),
+                ("ESTADO", "StateUser"),
+            };
+
+            return columnsProperties;
+        }
+        #endregion
     }
 }

@@ -7,7 +7,7 @@ using POS.Utilities.Static;
 
 namespace POS.Api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProviderController : ControllerBase

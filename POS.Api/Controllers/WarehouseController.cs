@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using POS.Application.Commons.Bases.Request;
 using POS.Application.Dtos.Warehouse.Request;
 using POS.Application.Interfaces;
@@ -6,6 +7,7 @@ using POS.Utilities.Static;
 
 namespace POS.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class WarehouseController : ControllerBase

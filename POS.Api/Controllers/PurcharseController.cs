@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using POS.Application.Commons.Bases.Request;
 using POS.Application.Dtos.Purcharse.Request;
@@ -7,6 +7,7 @@ using POS.Utilities.Static;
 
 namespace POS.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PurcharseController : ControllerBase
