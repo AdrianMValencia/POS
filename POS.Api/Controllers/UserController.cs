@@ -57,5 +57,19 @@ namespace POS.Api.Controllers
             var response = await _userApplication.RegisterUser(requestDto);
             return Ok(response);
         }
+
+        [HttpPut("Edit/{userId:int}")]
+        public async Task<IActionResult> EditUser(int userId, [FromForm] UserRequestDto requestDto)
+        {
+            var response = await _userApplication.EditUser(userId, requestDto);
+            return Ok(response);
+        }
+
+        [HttpPut("Remove/{userId:int}")]
+        public async Task<IActionResult> RemoveUser(int userId)
+        {
+            var response = await _userApplication.RemoveUser(userId);
+            return Ok(response);
+        }
     }
 }

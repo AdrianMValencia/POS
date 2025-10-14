@@ -12,5 +12,7 @@ namespace POS.Application.Interfaces
         Task<BaseResponse<IEnumerable<SelectResponse>>> ListSelectUsers();
         Task<BaseResponse<UserByIdResponseDto>> UserById(int userId);
         Task<BaseResponse<bool>> RegisterUser(UserRequestDto requestDto);
+        Task<BaseResponse<bool>> EditUser(int userId, UserRequestDto requestDto);
+        Task<BaseResponse<bool>> RemoveUser(int userId);
     }
 }

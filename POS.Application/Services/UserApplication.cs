@@ -23,17 +23,19 @@ namespace POS.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IConfiguration _configuration;
-        private readonly IAzureStorage _azureStorage;
         private readonly IOrderingQuery _orderingQuery;
+        private readonly IFileStorageLocalApplication _fileStorageLocal;
 
-        public UserApplication(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IAzureStorage azureStorage, IOrderingQuery orderingQuery)
+        public UserApplication(
+            IUnitOfWork unitOfWork, 
+            IMapper mapper, 
+            IOrderingQuery orderingQuery, 
+            IFileStorageLocalApplication fileStorageLocal)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _configuration = configuration;
-            _azureStorage = azureStorage;
             _orderingQuery = orderingQuery;
+            _fileStorageLocal = fileStorageLocal;
         }
 
         public async Task<BaseResponse<IEnumerable<UserResponseDto>>> ListUsers(BaseFiltersRequest filters)
@@ -143,7 +145,7 @@ namespace POS.Application.Services
 
             if (requestDto.Image is not null)
             {
-                account.Image = await _azureStorage.SaveFile(AzureContainers.USERS, requestDto.Image);
+                account.Image = await _fileStorageLocal.SaveFile(AzureContainers.USERS, requestDto.Image);
             }
 
             response.Data = await _unitOfWork.User.RegisterAsync(account);
@@ -157,6 +159,65 @@ namespace POS.Application.Services
             {
                 response.IsSuccess = false;
                 response.Message = ReplyMessage.MESSAGE_FAILED;
+            }
+
+            return response;
+        }
+
+        public async Task<BaseResponse<bool>> EditUser(int userId, UserRequestDto requestDto)
+        {
+            var response = new BaseResponse<bool>();
+
+            try
+            {
+                var userById = await _unitOfWork.User.GetByIdAsync(userId);
+                var user = _mapper.Map<User>(requestDto);
+
+                if (string.IsNullOrEmpty(requestDto.Password))
+                    user.Password = userById.Password;
+
+                if (requestDto.Image is not null)
+                    user.Image = await _fileStorageLocal
+                        .EditFile(AzureContainers.USERS, requestDto.Image, userById.Image!);
+
+                if (requestDto.Image is null)
+                    user.Image = userById.Image;
+
+                user.Id = userId;
+
+                response.IsSuccess = true;
+                response.Data = await _unitOfWork.User.EditAsync(user);
+                response.Message = ReplyMessage.MESSAGE_UPDATE;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ReplyMessage.MESSAGE_EXCEPTION;
+                WatchLogger.Log(ex.Message);
+            }
+
+            return response;
+        }
+
+        public async Task<BaseResponse<bool>> RemoveUser(int userId)
+        {
+            var response = new BaseResponse<bool>();
+
+            try
+            {
+                var user = await UserById(userId);
+                response.Data = await _unitOfWork.User.RemoveAsync(userId);
+
+                await _fileStorageLocal.RemoveFile(user.Data!.Image!, AzureContainers.USERS);
+
+                response.IsSuccess = true;
+                response.Message = ReplyMessage.MESSAGE_DELETE;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Message = ReplyMessage.MESSAGE_EXCEPTION;
+                WatchLogger.Log(ex.Message);
             }
 
             return response;
